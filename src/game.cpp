@@ -22,12 +22,12 @@ Game::Game()
       mIsMovingLeft(false),
       mIsMovingRight(false) {
     // Load player texture/sprite.
-    mTexture.loadFromFile("../res/textures/eagle.png");
+    mTexture.loadFromFile(RESOURCE_DIRECTORY "textures/eagle.png");
     mPlayer.setTexture(mTexture);
     mPlayer.setPosition(100.f, 100.f);
 
     // Load debug info font/text.
-    mDebugInfoFont.loadFromFile("../res/fonts/sansation.ttf");
+    mDebugInfoFont.loadFromFile(RESOURCE_DIRECTORY "/fonts/sansation.ttf");
     mDebugInfoText.setFont(mDebugInfoFont);
     mDebugInfoText.setColor(sf::Color::White);
     mDebugInfoText.setPosition(5.f, 5.f);
