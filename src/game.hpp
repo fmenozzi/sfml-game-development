@@ -1,3 +1,6 @@
+#ifndef SRC_GAME_HPP_
+#define SRC_GAME_HPP_
+
 #include <SFML/Graphics.hpp>
 
 class Game : private sf::NonCopyable {
@@ -35,3 +38,5 @@ private:
     bool mIsMovingLeft;
     bool mIsMovingRight;
 };
+
+#endif
