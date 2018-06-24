@@ -1,5 +1,7 @@
 #include "game.hpp"
 
+#include <string>
+
 const int WINDOW_WIDTH = 640;
 const int WINDOW_HEIGHT = 480;
 const float PLAYER_SPEED = 100.f;
@@ -8,23 +10,42 @@ const sf::Time TIME_PER_FRAME = sf::seconds(1.f / 60.f);
 Game::Game()
     : mWindow(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT),
               "SFML Game Development"),
-      mPlayer() {
-    mPlayer.setRadius(40.f);
+      mTexture(),
+      mPlayer(),
+      mIsDebugInfoEnabled(false),
+      mDebugInfoFont(),
+      mDebugInfoText(),
+      mDebugInfoUpdateTime(),
+      mDebugInfoNumFrames(0),
+      mIsMovingUp(false),
+      mIsMovingDown(false),
+      mIsMovingLeft(false),
+      mIsMovingRight(false) {
+    // Load player texture/sprite.
+    mTexture.loadFromFile("../res/textures/eagle.png");
+    mPlayer.setTexture(mTexture);
     mPlayer.setPosition(100.f, 100.f);
-    mPlayer.setFillColor(sf::Color::Cyan);
+
+    // Load debug info font/text.
+    mDebugInfoFont.loadFromFile("../res/fonts/sansation.ttf");
+    mDebugInfoText.setFont(mDebugInfoFont);
+    mDebugInfoText.setColor(sf::Color::White);
+    mDebugInfoText.setPosition(5.f, 5.f);
+    mDebugInfoText.setCharacterSize(10);
 }
 
 void Game::run() {
     sf::Clock clock;
     sf::Time timeSinceLastUpdate = sf::Time::Zero;
     while (mWindow.isOpen()) {
-        processEvents();
-        timeSinceLastUpdate += clock.restart();
+        auto elapsedTime = clock.restart();
+        timeSinceLastUpdate += elapsedTime;
         while (timeSinceLastUpdate > TIME_PER_FRAME) {
             timeSinceLastUpdate -= TIME_PER_FRAME;
             processEvents();
             update(TIME_PER_FRAME);
         }
+        updateDebugInfo(elapsedTime);
         render();
     }
 }
@@ -70,17 +91,48 @@ void Game::update(sf::Time dt) {
 void Game::render() {
     mWindow.clear();
     mWindow.draw(mPlayer);
+    if (mIsDebugInfoEnabled) {
+        mWindow.draw(mDebugInfoText);
+    }
     mWindow.display();
 }
 
 void Game::handlePlayerInput(sf::Keyboard::Key key, bool isPressed) {
-    if (key == sf::Keyboard::W) {
-        mIsMovingUp = isPressed;
-    } else if (key == sf::Keyboard::S) {
-        mIsMovingDown = isPressed;
-    } else if (key == sf::Keyboard::A) {
-        mIsMovingLeft = isPressed;
-    } else if (key == sf::Keyboard::D) {
-        mIsMovingRight = isPressed;
+    switch (key) {
+        case sf::Keyboard::W:
+            mIsMovingUp = isPressed;
+            break;
+        case sf::Keyboard::S:
+            mIsMovingDown = isPressed;
+            break;
+        case sf::Keyboard::A:
+            mIsMovingLeft = isPressed;
+            break;
+        case sf::Keyboard::D:
+            mIsMovingRight = isPressed;
+            break;
+        case sf::Keyboard::F3:
+            toggleDebugInfo(isPressed);
+            break;
+        default:
+            break;
+    }
+}
+
+void Game::toggleDebugInfo(bool isPressed) {
+    if (isPressed) {
+        mIsDebugInfoEnabled = !mIsDebugInfoEnabled;
+    }
+}
+
+void Game::updateDebugInfo(sf::Time elapsedTime) {
+    mDebugInfoUpdateTime += elapsedTime;
+    mDebugInfoNumFrames += 1;
+
+    if (mDebugInfoUpdateTime >= sf::seconds(1.f)) {
+        mDebugInfoText.setString("FPS: " + std::to_string(mDebugInfoNumFrames));
+
+        mDebugInfoUpdateTime -= sf::seconds(1.f);
+        mDebugInfoNumFrames = 0;
     }
 }
